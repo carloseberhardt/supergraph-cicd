@@ -7,7 +7,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install Stepzen CLI
-        uses: ./.github/actions/stepzen-cli
+        uses: ./.github/actions/install-cli
       - name: Login to StepZen
         uses: ./.github/actions/stepzen-login
         with:
