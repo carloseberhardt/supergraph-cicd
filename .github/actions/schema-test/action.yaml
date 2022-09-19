@@ -1,0 +1,31 @@
+name: 'Test Schema'
+description: 'Deploy a GraphQL deployment test schema and then runs npm test'
+
+inputs:
+  dir:
+    description: 'directory containing test project'
+    required: true
+  tag:
+    description: 'tag name to be appended to schema and endpoint - must be unique within workflow'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./deploy-tests/actions/schema-deploy
+      id: deploy
+      with:
+        dir: '${{ inputs.dir }}/schemas'
+        tag: '${{ inputs.tag }}'
+    - run: npm ci
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+    - run: sleep 60
+      name: ensure-api-key-loads-correct-schema
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+    - run: npm test
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      env:
+        STEPZEN_ENDPOINT: '${{ steps.deploy.outputs.endpoint }}'

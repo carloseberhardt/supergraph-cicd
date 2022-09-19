@@ -1,0 +1,9 @@
+extend type Launch {
+  rocketDetails: Rocket
+    @materializer(query: "rocket", arguments: [{ name: "id", field: "rocket" }])
+  payloadDetails: [Payload]
+    @materializer(
+      query: "payloadsByIds"
+      arguments: [{ name: "ids", field: "payloads" }]
+    )
+}

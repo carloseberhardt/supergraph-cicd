@@ -1,0 +1,34 @@
+name: 'stepzen login'
+description: 'Log into stepzen (defaults to steprz.io)'
+
+inputs:
+  account:
+    description: 'account name'
+    required: true
+  adminkey:
+    description: 'admin key'
+    required: true
+  domain:
+    description: 'stepzen io domain'
+    required: false
+    default: 'steprz.io'
+
+runs:
+  using: 'composite'
+  steps:
+    - run: stepzen login --account ${{ inputs.account }} --adminkey ${{ inputs.adminkey }}
+      name: 'login'
+      shell: bash
+      env:
+        STEPZEN_DOMAIN: ${{ inputs.domain }}
+        STEPZEN_SERVER_URL: 'https://${{ inputs.account }}.${{ inputs.domain }}'
+    - run: echo "STEPZEN_DOMAIN=${{ inputs.domain }}" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "STEPZEN_SERVER_URL=https://${{ inputs.account }}.${{ inputs.domain }}" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "STEPZEN_ACCOUNT=${{ inputs.account }}" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "STEPZEN_APIKEY=`stepzen whoami --apikey`" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "::add-mask::$STEPZEN_APIKEY"
+      shell: bash

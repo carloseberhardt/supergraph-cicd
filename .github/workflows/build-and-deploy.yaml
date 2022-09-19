@@ -1,0 +1,20 @@
+name: build-and-deploy
+on: [push]
+jobs:
+  deploy-supergraph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Stepzen CLI
+        uses: ./.github/actions/stepzen-cli
+      - name: Login to StepZen
+        uses: ./.github/actions/stepzen-login
+        with:
+          domain: 'stepzen.io'
+          account: ${{ secrets.STEPZEN_ACCOUNT }}
+          adminkey: ${{ secrets.STEPZEN_ADMIN_KEY }}
+      - name: Import subgraphs
+        run: make import
+      - name: Deploy supergraph
+        run: make deploy

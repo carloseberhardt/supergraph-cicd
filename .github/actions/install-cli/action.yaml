@@ -1,0 +1,13 @@
+name: 'Install CLI'
+description: 'Installs StepZen CLI'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - run: npm install -g stepzen
+      shell: bash
+    - run: stepzen version
+      shell: bash

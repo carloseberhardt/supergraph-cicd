@@ -1,0 +1,52 @@
+name: 'Deploy Schema'
+description: 'Deploy a GraphQL deployment schema - endpoint is $folder/$prefix$tag$suffix defaulting to a test schema when just tag is set'
+
+inputs:
+  dir:
+    description: 'directory containing index.graphql'
+    required: true
+  tag:
+    description: 'tag name to be appended to endpoint'
+    required: true
+  folder:
+    description: 'folder name for endpoint'
+    required: false
+    default: 'deployment_testing'
+  prefix:
+    description: 'prefix for endpoint'
+    required: false
+    default: 'schema_'
+  suffix:
+    description: 'suffix for endpoint'
+    required: false
+    default: '_${{ github.run_id }}'
+
+outputs:
+  endpoint:
+    description: 'Endpoint URL'
+    value: ${{ steps.endpoint-url.outputs.url }}
+  visible:
+    description: 'Time in epoch seconds the endpoint should be visible without an admin key'
+    value: ${{ steps.endpoint-url.outputs.visible }}
+
+# Requires that stepzen-login action has been invoked.
+runs:
+  using: 'composite'
+  steps:
+    - name: 'check-login'
+      shell: bash
+      run: |
+        if [ "${STEPZEN_ACCOUNT}" == "" ]; then echo 'requires stepzen-login action'; exit 1; fi
+    - name: 'create endpoint details'
+      shell: bash
+      run: |
+        echo "ENDPOINT_PATH=${{ inputs.folder }}/${{ inputs.prefix }}${{ inputs.tag }}${{ inputs.suffix }}" >> $GITHUB_ENV
+        echo "ENDPOINT_DOMAIN=`echo ${STEPZEN_DOMAIN} | sed 's/\.io$/.net/'`" >> $GITHUB_ENV
+    - run: stepzen deploy "${ENDPOINT_PATH}" --dir=${{ inputs.dir }}
+      name: 'deploy endpoint'
+      shell: bash
+    - id: endpoint-url
+      run: |
+        echo "::set-output name=url::$(echo https://${{ env.STEPZEN_ACCOUNT }}.${{ env.ENDPOINT_DOMAIN }}/${{ env.ENDPOINT_PATH }}/__graphql)"
+        echo "::set-output name=visible::$(echo $(( `date +%s` + 61 )) )"
+      shell: bash
