@@ -4,7 +4,6 @@ schema
       "extensions.graphql"
       
       
-      
     ]
   ) {
   query: Query
