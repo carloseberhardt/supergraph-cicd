@@ -11,7 +11,7 @@ ENDPOINT=${ENV}/${GRAPH}
 ACCOUNT:=$(shell stepzen whoami | awk '/Account/ {print $$2}')
 
 ## define the subgraphs to import, empty for none
-IMPORTS=launches rockets # payloads
+IMPORTS=launches rockets payloads
 ${IMPORTS}: stepzen.config.json
 	$(import-subgraph)
 
